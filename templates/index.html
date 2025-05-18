@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rejestracja użytkownika</title>
+</head>
+<body>
+    <h2>Zarejestruj się</h2>
+    <form id="registerForm">
+        <label for="username">Nazwa użytkownika:</label>
+        <input type="text" id="username" required>
+        <button type="submit">Zarejestruj</button>
+    </form>
+
+    <div id="result"></div>
+
+    <h3>Lista użytkowników:</h3>
+    <ul id="userList"></ul>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ username })
+            });
+
+            const result = await response.json();
+            document.getElementById('result').innerText = result.message || result.error;
+            loadUsers();
+        });
+
+        async function loadUsers() {
+            const response = await fetch('/users');
+            const users = await response.json();
+            const list = document.getElementById('userList');
+            list.innerHTML = '';
+            users.forEach(user => {
+                const li = document.createElement('li');
+                li.innerText = user;
+                list.appendChild(li);
+            });
+        }
+
+        loadUsers();
+    </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 name: CI/CD Docker Flask App
 
+# Workflow uruchamia się automatycznie na push lub pull request do gałęzi 'main'
 on:
   push:
     branches: [ "main" ]
@@ -8,37 +9,45 @@ on:
 
 jobs:
   build-test-push-deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest   # Akcja zostanie wykonana na maszynie z Ubuntu
 
     steps:
+    # 1. Pobranie kodu z repozytorium
     - name: Checkout repo
       uses: actions/checkout@v3
 
+    # 2. Instalacja wybranej wersji Pythona (3.10.17)
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: 3.10.17
         
+    # 3. Ustawienie zmiennej środowiskowej PYTHONPATH na katalog roboczy
     - name: Set PYTHONPATH
       run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
       
+    # 4. Instalacja zależności z pliku requirements.txt
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    # 5. Statyczna analiza kodu narzędziem flake8
     - name: Run flake8 (static code analysis)
       run: flake8 .
       
+    # 6. Uruchomienie testów jednostkowych pytest
     - name: Run tests
       run: pytest
 
+    # 7. Logowanie do Docker Hub przy użyciu sekretów repozytorium
     - name: Log in to Docker Hub
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    # 8. Budowa obrazu Dockera i wysłanie go do Docker Hub
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
@@ -46,6 +55,7 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/magisterkacicd:latest
 
+    # 9. Wdrożenie nowego obrazu na Azure Web App for Containers
     - name: Deploy to Azure Web App (Container)
       uses: azure/webapps-deploy@v2
       with:

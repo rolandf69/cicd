@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
-import os
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -8,17 +8,21 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False, unique=True)
+
 
 @app.before_first_request
 def create_tables():
     db.create_all()
 
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -36,6 +40,7 @@ def register():
     db.session.commit()
 
     return jsonify({"message": f"User {username} registered"}), 201
+
 
 @app.route('/users', methods=['GET'])
 def list_users():

@@ -47,5 +47,6 @@ def list_users():
     users = User.query.all()
     return jsonify([user.username for user in users])
 
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

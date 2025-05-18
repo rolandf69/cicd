@@ -4,3 +4,4 @@ sqlalchemy<2.0
 werkzeug<3.0
 pytest==7.4.4
 gunicorn
+flake8
